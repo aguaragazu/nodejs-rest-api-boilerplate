@@ -3,7 +3,7 @@ const faker = require('faker');
 const httpStatus = require('http-status');
 const app = require('../../src/app');
 const setupTestDB = require('../utils/setupTestDB');
-const { User } = require('../../src/models');
+const { User } = require('../../src/core/models');
 const { userOne, userTwo, admin, insertUsers } = require('../fixtures/user.fixture');
 const { userOneAccessToken, adminAccessToken } = require('../fixtures/token.fixture');
 
