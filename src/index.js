@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const app = require('./app');
+const db = require('./core/models');
 const config = require('./config/config');
 const logger = require('./config/logger');
 
@@ -10,6 +11,15 @@ mongoose.connect(config.mongoose.url, config.mongoose.options).then(() => {
     logger.info(`Listening to port ${config.port}`);
   });
 });
+
+db.sequelize
+  .authenticate()
+  .then(() => {
+    logger.info('Connected to Mysql.');
+  })
+  .catch((err) => {
+    logger.error('Unable to connect to Mysql:', err);
+  });
 
 const exitHandler = () => {
   if (server) {
