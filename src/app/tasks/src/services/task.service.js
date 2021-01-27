@@ -1,5 +1,3 @@
-const httpStatus = require('http-status');
-const ApiError = require('../../../../utils/ApiError');
 const { Task } = require('../models');
 
 const createTask = async (taskBody, user) => {
@@ -7,24 +5,20 @@ const createTask = async (taskBody, user) => {
   return task;
 };
 
-const getTask = async (filter) => {
-  const task = await Task.findOne(filter);
+const getTask = async (id) => {
+  const task = await Task.findById(id);
   return task;
 };
 
-const updateTask = async (taskId, updateBody, user) => {
-  const task = await getTask(taskId, user);
-  if (!task) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Task not found');
-  }
+const updateTask = async (task, updateBody) => {
   Object.assign(task, updateBody);
   // Object.keys(updateBody).forEach(update => (task[update] = updateBody[update]));
   await task.save();
   return task;
 };
 
-const deleteTask = async (taskId, user) => {
-  const task = await getTask(taskId, user);
+const deleteTask = async (taskId) => {
+  const task = await getTask(taskId);
   await task.remove();
   return task;
 };

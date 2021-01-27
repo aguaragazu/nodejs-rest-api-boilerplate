@@ -1,7 +1,7 @@
 const passport = require('passport');
 const httpStatus = require('http-status');
 const ApiError = require('../../../../utils/ApiError');
-const taskRoleRights = require('../config/taskRoles');
+const { taskRoleRights } = require('../config/taskRoles');
 
 const verifyCallbackTask = (req, resolve, reject, requiredTaskRights) => async (err, user, info) => {
   if (err || info || !user) {
