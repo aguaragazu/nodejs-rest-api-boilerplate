@@ -71,9 +71,30 @@ const resetPassword = async (resetPasswordToken, newPassword) => {
   }
 };
 
+/**
+ * Confirm Email
+ * @param {string} email
+ * @param {string} token
+ * @returns {Promise}
+ */
+const confirmEmail = async (email, token) => {
+  try {
+    const user = await userService.getUserByEmail(email);
+    if (!user) {
+      throw new Error();
+    }
+    if (user && !user.confirmed && user.confirmationCode === token) {
+      await userService.updateUserById(user.id, { confirmed: true, confirmationCode: 'undefined' });
+    }
+  } catch (error) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Email confirmation failed');
+  }
+};
+
 module.exports = {
   loginUserWithEmailAndPassword,
   logout,
   refreshAuth,
   resetPassword,
+  confirmEmail,
 };

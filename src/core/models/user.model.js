@@ -1,8 +1,10 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const randtoken = require('rand-token');
 const bcrypt = require('bcryptjs');
 const { toJSON, paginate } = require('./plugins');
 const { roles } = require('../../config/roles');
+const { AuthProvider } = require('../../config/providers');
 
 const userSchema = mongoose.Schema(
   {
@@ -40,6 +42,36 @@ const userSchema = mongoose.Schema(
       enum: roles,
       default: 'user',
     },
+    confirmed: {
+      type: Boolean,
+      default: false,
+    },
+    confirmationCode: {
+      type: String,
+    },
+    recovery: {
+      code: String,
+      requested: Date,
+    },
+    createdWith: {
+      type: String,
+      enum: AuthProvider,
+      default: 'password',
+    },
+    firstName: {
+      type: String,
+      maxLenght: 100,
+    },
+    lastName: {
+      type: String,
+      maxLenght: 100,
+    },
+    bio: {
+      type: String,
+    },
+    profileImage: {
+      type: String,
+    },
   },
   {
     timestamps: true,
@@ -62,6 +94,17 @@ userSchema.statics.isEmailTaken = async function (email, excludeUserId) {
 };
 
 /**
+ * Check if name is taken
+ * @param {string} name - The user's name
+ * @param {ObjectId} [excludeUserId] - The id of the user to be excluded
+ * @returns {Promise<boolean>}
+ */
+userSchema.statics.isNameTaken = async function (name, excludeUserId) {
+  const user = await this.findOne({ name, _id: { $ne: excludeUserId } });
+  return !!user;
+};
+
+/**
  * Check if password matches the user's password
  * @param {string} password
  * @returns {Promise<boolean>}
@@ -75,6 +118,9 @@ userSchema.pre('save', async function (next) {
   const user = this;
   if (user.isModified('password')) {
     user.password = await bcrypt.hash(user.password, 8);
+  }
+  if (!user.confirmed) {
+    user.confirmationCode = randtoken.uid(256);
   }
   next();
 });

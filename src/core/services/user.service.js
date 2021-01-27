@@ -1,6 +1,7 @@
 const httpStatus = require('http-status');
 const { User } = require('../models');
 const ApiError = require('../../utils/ApiError');
+const { sendEmail } = require('./email.service');
 
 /**
  * Create a user
@@ -11,7 +12,16 @@ const createUser = async (userBody) => {
   if (await User.isEmailTaken(userBody.email)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
+  if (await User.isNameTaken(userBody.name)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'El nombre de usuario ya ha sido registrado');
+  }
   const user = await User.create(userBody);
+  const subject = 'Bienvenido a SPEP-Web! Confirma tu Email';
+  const link = `http://localhost:4200/auth/confirm?email=${user.email}&token=${user.confirmationCode}`;
+  const text = `Por favor confirma tu Email siguiendo el link: ${link}`;
+  const html = `<div><h1><strong>Confirma tu cuenta de ingreso.</strong></h1><p><br />&iexcl;Gracias por registrarte!<br />Necesitamos verificar que la cuenta&nbsp;<strong><a href="mailto:${user.email}">${user.email}</a></strong>&nbsp;es tu E-mail.&nbsp;<br /><br />Para verificar que esta cuenta te pertenece, por favor presiona el siguietne boton:</p><p><a href="${link}">VERFICAR MI EMAIL</a></p><p>&iquest;No funciona? Copia el siguiente link:</p><p><a href="${link}">${link}</a></p></div>`;
+
+  sendEmail(userBody.email, subject, text, html);
   return user;
 };
 
