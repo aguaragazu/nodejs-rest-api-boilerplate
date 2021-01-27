@@ -1,3 +1,6 @@
+# IDE
+.vscode
+
 # Dependencies
 node_modules
 
@@ -13,3 +16,9 @@ coverage
 
 # Rest test
 rest
+
+# App modules
+app/*
+!app/.gitkeep
+!app/task/*
+!app/modules.route.js
